@@ -12,7 +12,8 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use App\BookStore\Application\Command\AnonymizeBooksCommand;
+use App\BookStore\Domain\Command\AnonymizeBooksCommand;
+use App\BookStore\Domain\Event\BookEvent;
 use App\BookStore\Domain\Model\Book;
 use App\BookStore\Infrastructure\ApiPlatform\OpenApi\AuthorFilter;
 use App\BookStore\Infrastructure\ApiPlatform\Payload\DiscountBookPayload;
@@ -22,9 +23,11 @@ use App\BookStore\Infrastructure\ApiPlatform\State\Processor\DeleteBookProcessor
 use App\BookStore\Infrastructure\ApiPlatform\State\Processor\DiscountBookProcessor;
 use App\BookStore\Infrastructure\ApiPlatform\State\Processor\UpdateBookProcessor;
 use App\BookStore\Infrastructure\ApiPlatform\State\Provider\BookCollectionProvider;
+use App\BookStore\Infrastructure\ApiPlatform\State\Provider\BookEventsProvider;
 use App\BookStore\Infrastructure\ApiPlatform\State\Provider\BookItemProvider;
 use App\BookStore\Infrastructure\ApiPlatform\State\Provider\CheapestBooksProvider;
 use Symfony\Component\Uid\AbstractUid;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -36,6 +39,12 @@ use Symfony\Component\Validator\Constraints as Assert;
             openapiContext: ['summary' => 'Find cheapest Book resources.'],
             paginationEnabled: false,
             provider: CheapestBooksProvider::class,
+        ),
+        new GetCollection(
+            '/books/{id}/events.{_format}',
+            openapiContext: ['summary' => 'Get events for this Book.'],
+            output: BookEvent::class,
+            provider: BookEventsProvider::class,
         ),
 
         // commands
@@ -113,7 +122,7 @@ final class BookResource
     public static function fromModel(Book $book): static
     {
         return new self(
-            $book->id()->value,
+            Uuid::fromString($book->id()->value),
             $book->name()->value,
             $book->description()->value,
             $book->author()->value,

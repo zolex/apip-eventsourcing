@@ -24,6 +24,8 @@ parameters:
               - { type: className, regex: ^Symfony\\ }
               - { type: className, regex: ^Doctrine\\ }
               - { type: className, regex: ^Webmozart\\ }
+              - { type: className, regex: ^Ecotone\\ }
+              - { type: className, regex: ^Prooph\\ }
 
     ruleset:
         BookStore: [ Shared, Vendors ]

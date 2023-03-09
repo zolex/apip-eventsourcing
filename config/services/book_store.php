@@ -11,7 +11,7 @@ use App\BookStore\Infrastructure\ApiPlatform\State\Processor\UpdateBookProcessor
 use App\BookStore\Infrastructure\ApiPlatform\State\Provider\BookCollectionProvider;
 use App\BookStore\Infrastructure\ApiPlatform\State\Provider\BookItemProvider;
 use App\BookStore\Infrastructure\ApiPlatform\State\Provider\CheapestBooksProvider;
-use App\BookStore\Infrastructure\Doctrine\DoctrineBookRepository;
+use App\BookStore\Infrastructure\Ecotone\Repository\BookRepository;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -59,5 +59,5 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // repositories
     $services->set(BookRepositoryInterface::class)
-        ->class(DoctrineBookRepository::class);
+        ->class(BookRepository::class);
 };

@@ -4,27 +4,28 @@ declare(strict_types=1);
 
 namespace App\BookStore\Application\Query;
 
+use App\BookStore\Domain\Query\FindBooksQuery;
 use App\BookStore\Domain\Repository\BookRepositoryInterface;
 use App\Shared\Application\Query\QueryHandlerInterface;
+use Ecotone\Modelling\Attribute\QueryHandler;
 
-final class FindBooksQueryHandler implements QueryHandlerInterface
+final readonly class FindBooksQueryHandler implements QueryHandlerInterface
 {
     public function __construct(private BookRepositoryInterface $bookRepository)
     {
     }
 
-    public function __invoke(FindBooksQuery $query): BookRepositoryInterface
+    #[QueryHandler]
+    public function __invoke(FindBooksQuery $query): iterable
     {
-        $bookRepository = $this->bookRepository;
-
         if (null !== $query->author) {
-            $bookRepository = $bookRepository->withAuthor($query->author);
+            return $this->bookRepository->findByAuthor($query->author);
         }
 
         if (null !== $query->page && null !== $query->itemsPerPage) {
-            $bookRepository = $bookRepository->withPagination($query->page, $query->itemsPerPage);
+            return $this->bookRepository->paginator($query->page, $query->itemsPerPage);
         }
 
-        return $bookRepository;
+        return $this->bookRepository->all();
     }
 }

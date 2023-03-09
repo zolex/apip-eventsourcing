@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\BookStore\Acceptance;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
-use App\BookStore\Domain\Repository\BookRepositoryInterface;
+use App\BookStore\Domain\ValueObject\BookId;
 use App\BookStore\Infrastructure\ApiPlatform\Resource\BookResource;
+use App\BookStore\Infrastructure\Ecotone\Repository\EventSourcedBookRepository;
 use App\Tests\BookStore\DummyFactory\DummyBookFactory;
 
 final class CheapestBooksTest extends ApiTestCase
@@ -15,11 +16,14 @@ final class CheapestBooksTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        /** @var BookRepositoryInterface $bookRepository */
-        $bookRepository = static::getContainer()->get(BookRepositoryInterface::class);
+        /** @var EventSourcedBookRepository $eventSourcedBookRepository */
+        $eventSourcedBookRepository = static::getContainer()->get(EventSourcedBookRepository::class);
 
         for ($i = 0; $i < 20; ++$i) {
-            $bookRepository->save(DummyBookFactory::createBook(price: $i));
+            $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(
+                id: $bookId,
+                price: $i,
+            )]);
         }
 
         $response = $client->request('GET', '/api/books/cheapest');
@@ -41,12 +45,15 @@ final class CheapestBooksTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        /** @var BookRepositoryInterface $bookRepository */
-        $bookRepository = static::getContainer()->get(BookRepositoryInterface::class);
+        /** @var EventSourcedBookRepository $eventSourcedBookRepository */
+        $eventSourcedBookRepository = static::getContainer()->get(EventSourcedBookRepository::class);
 
         $prices = [2000, 1000, 3000];
         foreach ($prices as $price) {
-            $bookRepository->save(DummyBookFactory::createBook(price: $price));
+            $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(
+                id: $bookId,
+                price: $price,
+            )]);
         }
 
         $response = $client->request('GET', '/api/books/cheapest');

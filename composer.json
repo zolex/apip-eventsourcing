@@ -6,16 +6,23 @@
       {
         "name": "Mathias Arlaud",
         "email": "mathias.arlaud@gmail.com"
+      },
+      {
+        "name": "Alan Poulain",
+        "email": "contact@alanpoulain.eu"
       }
     ],
     "require": {
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "api-platform/core": "^3.0",
+        "api-platform/core": "^3.1",
         "doctrine/annotations": "^2.0",
         "doctrine/doctrine-bundle": "^2.5",
         "doctrine/orm": "^2.11",
+        "ecotone/jms-converter": "^1.74",
+        "ecotone/pdo-event-sourcing": "^1.74",
+        "ecotone/symfony-bundle": "^1.74",
         "nelmio/cors-bundle": "^2.2",
         "phpdocumentor/reflection-docblock": "^5.3",
         "phpstan/phpdoc-parser": "^1.2",
@@ -97,7 +104,7 @@
         }
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.11",
+        "friendsofphp/php-cs-fixer": "^3.15",
         "justinrainbow/json-schema": "^5.2",
         "phpunit/phpunit": "^9.5",
         "qossmic/deptrac-shim": "^1.0",
@@ -108,6 +115,6 @@
         "symfony/phpunit-bridge": "6.2.*",
         "symfony/stopwatch": "6.2.*",
         "symfony/web-profiler-bundle": "6.2.*",
-        "vimeo/psalm": "^5.6"
+        "vimeo/psalm": "^5.8"
     }
 }

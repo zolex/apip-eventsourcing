@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Tests\BookStore\Functional;
 
-use App\BookStore\Application\Command\UpdateBookCommand;
+use App\BookStore\Domain\Command\UpdateBookCommand;
 use App\BookStore\Domain\Repository\BookRepositoryInterface;
 use App\BookStore\Domain\ValueObject\Author;
 use App\BookStore\Domain\ValueObject\BookContent;
 use App\BookStore\Domain\ValueObject\BookDescription;
+use App\BookStore\Domain\ValueObject\BookId;
 use App\BookStore\Domain\ValueObject\BookName;
 use App\BookStore\Domain\ValueObject\Price;
+use App\BookStore\Infrastructure\Ecotone\Repository\EventSourcedBookRepository;
 use App\Shared\Application\Command\CommandBusInterface;
 use App\Tests\BookStore\DummyFactory\DummyBookFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -19,30 +21,25 @@ final class UpdateBookTest extends KernelTestCase
 {
     public function testUpdateBook(): void
     {
+        /** @var EventSourcedBookRepository $eventSourcedBookRepository */
+        $eventSourcedBookRepository = static::getContainer()->get(EventSourcedBookRepository::class);
+
         /** @var BookRepositoryInterface $bookRepository */
         $bookRepository = static::getContainer()->get(BookRepositoryInterface::class);
 
         /** @var CommandBusInterface $commandBus */
         $commandBus = static::getContainer()->get(CommandBusInterface::class);
 
-        $initialBook = DummyBookFactory::createBook(
-            name: 'name',
-            description: 'description',
-            author: 'author',
-            content: 'content',
-            price: 1000,
-        );
-
-        $bookRepository->save($initialBook);
+        $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(id: $bookId)]);
 
         $commandBus->dispatch(new UpdateBookCommand(
-            $initialBook->id(),
+            $bookId,
             name: new BookName('newName'),
             content: new BookContent('newContent'),
             price: new Price(2000),
         ));
 
-        $book = $bookRepository->ofId($initialBook->id());
+        $book = $bookRepository->ofId($bookId);
 
         static::assertEquals(new BookName('newName'), $book->name());
         static::assertEquals(new BookDescription('description'), $book->description());

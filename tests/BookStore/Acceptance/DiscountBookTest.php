@@ -6,8 +6,10 @@ namespace App\Tests\BookStore\Acceptance;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\BookStore\Domain\Repository\BookRepositoryInterface;
+use App\BookStore\Domain\ValueObject\BookId;
 use App\BookStore\Domain\ValueObject\Price;
 use App\BookStore\Infrastructure\ApiPlatform\Resource\BookResource;
+use App\BookStore\Infrastructure\Ecotone\Repository\EventSourcedBookRepository;
 use App\Tests\BookStore\DummyFactory\DummyBookFactory;
 
 final class DiscountBookTest extends ApiTestCase
@@ -16,13 +18,12 @@ final class DiscountBookTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        /** @var BookRepositoryInterface $bookRepository */
-        $bookRepository = static::getContainer()->get(BookRepositoryInterface::class);
+        /** @var EventSourcedBookRepository $eventSourcedBookRepository */
+        $eventSourcedBookRepository = static::getContainer()->get(EventSourcedBookRepository::class);
 
-        $book = DummyBookFactory::createBook(price: 1000);
-        $bookRepository->save($book);
+        $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(id: $bookId)]);
 
-        $client->request('POST', sprintf('/api/books/%s/discount', $book->id()), [
+        $client->request('POST', sprintf('/api/books/%s/discount', $bookId), [
             'json' => [
                 'discountPercentage' => 20,
             ],
@@ -32,20 +33,19 @@ final class DiscountBookTest extends ApiTestCase
         static::assertMatchesResourceItemJsonSchema(BookResource::class);
         static::assertJsonContains(['price' => 800]);
 
-        static::assertEquals(new Price(800), $bookRepository->ofId($book->id())->price());
+        static::assertEquals(new Price(800), static::getContainer()->get(BookRepositoryInterface::class)->ofId($bookId)->price());
     }
 
     public function testValidateDiscountAmount(): void
     {
         $client = static::createClient();
 
-        /** @var BookRepositoryInterface $bookRepository */
-        $bookRepository = static::getContainer()->get(BookRepositoryInterface::class);
+        /** @var EventSourcedBookRepository $eventSourcedBookRepository */
+        $eventSourcedBookRepository = static::getContainer()->get(EventSourcedBookRepository::class);
 
-        $book = DummyBookFactory::createBook(price: 1000);
-        $bookRepository->save($book);
+        $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(id: $bookId)]);
 
-        $client->request('POST', sprintf('/api/books/%s/discount', $book->id()), [
+        $client->request('POST', sprintf('/api/books/%s/discount', $bookId), [
             'json' => [
                 'discountPercentage' => 200,
             ],
@@ -58,6 +58,6 @@ final class DiscountBookTest extends ApiTestCase
             ],
         ]);
 
-        static::assertEquals(new Price(1000), $bookRepository->ofId($book->id())->price());
+        static::assertEquals(new Price(1000), static::getContainer()->get(BookRepositoryInterface::class)->ofId($bookId)->price());
     }
 }

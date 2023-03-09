@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\BookStore\Functional;
 
-use App\BookStore\Application\Query\FindBooksQuery;
 use App\BookStore\Domain\Model\Book;
+use App\BookStore\Domain\Query\FindBooksQuery;
 use App\BookStore\Domain\Repository\BookRepositoryInterface;
 use App\BookStore\Domain\ValueObject\Author;
+use App\BookStore\Domain\ValueObject\BookId;
+use App\BookStore\Infrastructure\Ecotone\Repository\EventSourcedBookRepository;
 use App\Shared\Application\Query\QueryBusInterface;
 use App\Tests\BookStore\DummyFactory\DummyBookFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -16,48 +18,61 @@ final class FindBooksTest extends KernelTestCase
 {
     public function testFindBooks(): void
     {
-        /** @var BookRepositoryInterface $bookRepository */
-        $bookRepository = static::getContainer()->get(BookRepositoryInterface::class);
+        /** @var EventSourcedBookRepository $eventSourcedBookRepository */
+        $eventSourcedBookRepository = static::getContainer()->get(EventSourcedBookRepository::class);
 
         /** @var QueryBusInterface $queryBus */
         $queryBus = static::getContainer()->get(QueryBusInterface::class);
 
-        $initialBooks = [
-            DummyBookFactory::createBook(),
-            DummyBookFactory::createBook(),
-            DummyBookFactory::createBook(),
-            DummyBookFactory::createBook(),
-            DummyBookFactory::createBook(),
+        $initialBookEvents = [
+            $bookId = (string) new BookId() => DummyBookFactory::createBookWasCreatedEvent(id: new BookId($bookId)),
+            $bookId = (string) new BookId() => DummyBookFactory::createBookWasCreatedEvent(id: new BookId($bookId)),
+            $bookId = (string) new BookId() => DummyBookFactory::createBookWasCreatedEvent(id: new BookId($bookId)),
+            $bookId = (string) new BookId() => DummyBookFactory::createBookWasCreatedEvent(id: new BookId($bookId)),
+            $bookId = (string) new BookId() => DummyBookFactory::createBookWasCreatedEvent(id: new BookId($bookId)),
         ];
 
-        foreach ($initialBooks as $book) {
-            $bookRepository->save($book);
+        foreach ($initialBookEvents as $bookId => $bookEvent) {
+            $eventSourcedBookRepository->save(new BookId($bookId), 0, [$bookEvent]);
         }
 
-        $books = $queryBus->ask(new FindBooksQuery());
+        /** @var Book[] $books */
+        $books = iterator_to_array($queryBus->ask(new FindBooksQuery()));
 
-        static::assertCount(count($initialBooks), $books);
+        static::assertCount(count($initialBookEvents), $books);
         foreach ($books as $book) {
-            static::assertContains($book, $initialBooks);
+            static::assertArrayHasKey((string) $book->id(), $initialBookEvents);
         }
     }
 
     public function testFilterBooksByAuthor(): void
     {
+        /** @var EventSourcedBookRepository $eventSourcedBookRepository */
+        $eventSourcedBookRepository = static::getContainer()->get(EventSourcedBookRepository::class);
+
         /** @var BookRepositoryInterface $bookRepository */
         $bookRepository = static::getContainer()->get(BookRepositoryInterface::class);
 
         /** @var QueryBusInterface $queryBus */
         $queryBus = static::getContainer()->get(QueryBusInterface::class);
 
-        $bookRepository->save(DummyBookFactory::createBook(author: 'authorOne'));
-        $bookRepository->save(DummyBookFactory::createBook(author: 'authorOne'));
-        $bookRepository->save(DummyBookFactory::createBook(author: 'authorTwo'));
+        $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(
+            id: $bookId,
+            author: 'authorOne',
+        )]);
+        $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(
+            id: $bookId,
+            author: 'authorOne',
+        )]);
+        $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(
+            id: $bookId,
+            author: 'authorTwo',
+        )]);
 
-        static::assertCount(3, $bookRepository);
+        static::assertCount(3, iterator_to_array($bookRepository->all()));
 
         /** @var Book[] $books */
-        $books = $queryBus->ask(new FindBooksQuery(author: new Author('authorOne')));
+        $books = iterator_to_array($queryBus->ask(new FindBooksQuery(author: new Author('authorOne'))));
 
         static::assertCount(2, $books);
         foreach ($books as $book) {
@@ -67,30 +82,31 @@ final class FindBooksTest extends KernelTestCase
 
     public function testReturnPaginatedBooks(): void
     {
-        /** @var BookRepositoryInterface $bookRepository */
-        $bookRepository = static::getContainer()->get(BookRepositoryInterface::class);
+        /** @var EventSourcedBookRepository $eventSourcedBookRepository */
+        $eventSourcedBookRepository = static::getContainer()->get(EventSourcedBookRepository::class);
 
         /** @var QueryBusInterface $queryBus */
         $queryBus = static::getContainer()->get(QueryBusInterface::class);
 
-        $initialBooks = [
-            DummyBookFactory::createBook(),
-            DummyBookFactory::createBook(),
-            DummyBookFactory::createBook(),
-            DummyBookFactory::createBook(),
-            DummyBookFactory::createBook(),
+        $initialBookEvents = [
+            $bookId = (string) new BookId() => DummyBookFactory::createBookWasCreatedEvent(id: new BookId($bookId)),
+            $bookId = (string) new BookId() => DummyBookFactory::createBookWasCreatedEvent(id: new BookId($bookId)),
+            $bookId = (string) new BookId() => DummyBookFactory::createBookWasCreatedEvent(id: new BookId($bookId)),
+            $bookId = (string) new BookId() => DummyBookFactory::createBookWasCreatedEvent(id: new BookId($bookId)),
+            $bookId = (string) new BookId() => DummyBookFactory::createBookWasCreatedEvent(id: new BookId($bookId)),
         ];
 
-        foreach ($initialBooks as $book) {
-            $bookRepository->save($book);
+        foreach ($initialBookEvents as $bookId => $bookEvent) {
+            $eventSourcedBookRepository->save(new BookId($bookId), 0, [$bookEvent]);
         }
 
-        $books = $queryBus->ask(new FindBooksQuery(page: 2, itemsPerPage: 2));
+        /** @var Book[] $books */
+        $books = iterator_to_array($queryBus->ask(new FindBooksQuery(page: 2, itemsPerPage: 2)));
 
         static::assertCount(2, $books);
         $i = 0;
         foreach ($books as $book) {
-            static::assertSame($initialBooks[$i + 2], $book);
+            static::assertEquals(array_values($initialBookEvents)[$i + 2]->id(), $book->id());
             ++$i;
         }
     }

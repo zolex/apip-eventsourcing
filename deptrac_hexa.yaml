@@ -25,27 +25,31 @@ parameters:
               - { type: className, regex: ^Symfony\\(?!(Component\\Uid\\)) }
               - { type: className, regex: ^Doctrine\\(?!(ORM\\Mapping)) }
               - { type: className, regex: ^Webmozart\\(?!Assert\\Assert) }
+              - { type: className, regex: ^Ecotone\\(?!Modelling\\(?:Attribute|WithAggregateVersioning)) }
+              - { type: className, regex: ^Prooph\\ }
 
         - name: Attributes
           collectors:
               - { type: className, regex: ^Doctrine\\ORM\\Mapping }
+              - { type: className, regex: ^Ecotone\\Modelling\\Attribute }
 
         - name: Helpers
           collectors:
               - { type: className, regex: ^Symfony\\Component\\Uid\\ }
               - { type: className, regex: ^Webmozart\\Assert\\Assert }
+              - { type: className, regex: ^Ecotone\\Modelling\\WithAggregateVersioning }
 
     ruleset:
-        Domain: 
+        Domain:
             - Helpers
             - Attributes
 
-        Application: 
+        Application:
             - Domain
             - Helpers
             - Attributes
 
-        Infrastructure: 
+        Infrastructure:
             - Domain
             - Application
             - Vendors

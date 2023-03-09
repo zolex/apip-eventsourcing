@@ -74,6 +74,11 @@ db-create:
 db-update:
 	@$(EXEC) bin/console doctrine:schema:update --force -nq
 
+db-projections:
+	@$(EXEC) bin/console ecotone:es:initialize-projection bookList
+	@$(EXEC) bin/console ecotone:es:initialize-projection bookPriceList
+	@$(EXEC) bin/console ecotone:es:initialize-projection booksByAuthor
+
 ## Reset database
 db-reset: db-create db-update
 

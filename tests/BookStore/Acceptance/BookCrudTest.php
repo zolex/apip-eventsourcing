@@ -14,8 +14,8 @@ use App\BookStore\Domain\ValueObject\BookId;
 use App\BookStore\Domain\ValueObject\BookName;
 use App\BookStore\Domain\ValueObject\Price;
 use App\BookStore\Infrastructure\ApiPlatform\Resource\BookResource;
+use App\BookStore\Infrastructure\Ecotone\Repository\EventSourcedBookRepository;
 use App\Tests\BookStore\DummyFactory\DummyBookFactory;
-use Symfony\Component\Uid\Uuid;
 
 final class BookCrudTest extends ApiTestCase
 {
@@ -23,11 +23,11 @@ final class BookCrudTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        /** @var BookRepositoryInterface $bookRepository */
-        $bookRepository = static::getContainer()->get(BookRepositoryInterface::class);
+        /** @var EventSourcedBookRepository $eventSourcedBookRepository */
+        $eventSourcedBookRepository = static::getContainer()->get(EventSourcedBookRepository::class);
 
         for ($i = 0; $i < 100; ++$i) {
-            $bookRepository->save(DummyBookFactory::createBook());
+            $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(id: $bookId)]);
         }
 
         $client->request('GET', '/api/books');
@@ -49,12 +49,12 @@ final class BookCrudTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        /** @var BookRepositoryInterface $bookRepository */
-        $bookRepository = static::getContainer()->get(BookRepositoryInterface::class);
+        /** @var EventSourcedBookRepository $eventSourcedBookRepository */
+        $eventSourcedBookRepository = static::getContainer()->get(EventSourcedBookRepository::class);
 
-        $bookRepository->save(DummyBookFactory::createBook(author: 'authorOne'));
-        $bookRepository->save(DummyBookFactory::createBook(author: 'authorOne'));
-        $bookRepository->save(DummyBookFactory::createBook(author: 'authorTwo'));
+        $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(id: $bookId, author: 'authorOne')]);
+        $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(id: $bookId, author: 'authorOne')]);
+        $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(id: $bookId, author: 'authorTwo')]);
 
         $client->request('GET', '/api/books?author=authorOne');
 
@@ -74,19 +74,12 @@ final class BookCrudTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        /** @var BookRepositoryInterface $bookRepository */
-        $bookRepository = static::getContainer()->get(BookRepositoryInterface::class);
+        /** @var EventSourcedBookRepository $eventSourcedBookRepository */
+        $eventSourcedBookRepository = static::getContainer()->get(EventSourcedBookRepository::class);
 
-        $book = DummyBookFactory::createBook(
-            name: 'name',
-            description: 'description',
-            author: 'author',
-            content: 'content',
-            price: 1000,
-        );
-        $bookRepository->save($book);
+        $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(id: $bookId)]);
 
-        $client->request('GET', sprintf('/api/books/%s', (string) $book->id()));
+        $client->request('GET', sprintf('/api/books/%s', $bookId));
 
         static::assertResponseIsSuccessful();
         static::assertMatchesResourceItemJsonSchema(BookResource::class);
@@ -125,7 +118,7 @@ final class BookCrudTest extends ApiTestCase
             'price' => 1000,
         ]);
 
-        $id = new BookId(Uuid::fromString(str_replace('/api/books/', '', $response->toArray()['@id'])));
+        $id = new BookId(str_replace('/api/books/', '', $response->toArray()['@id']));
 
         /** @var Book $book */
         $book = static::getContainer()->get(BookRepositoryInterface::class)->ofId($id);
@@ -184,13 +177,12 @@ final class BookCrudTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        /** @var BookRepositoryInterface $bookRepository */
-        $bookRepository = static::getContainer()->get(BookRepositoryInterface::class);
+        /** @var EventSourcedBookRepository $eventSourcedBookRepository */
+        $eventSourcedBookRepository = static::getContainer()->get(EventSourcedBookRepository::class);
 
-        $book = DummyBookFactory::createBook();
-        $bookRepository->save($book);
+        $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(id: $bookId)]);
 
-        $client->request('PUT', sprintf('/api/books/%s', $book->id()), [
+        $client->request('PUT', sprintf('/api/books/%s', $bookId), [
             'json' => [
                 'name' => 'newName',
                 'description' => 'newDescription',
@@ -211,9 +203,9 @@ final class BookCrudTest extends ApiTestCase
             'price' => 2000,
         ]);
 
-        $updatedBook = $bookRepository->ofId($book->id());
+        $updatedBook = static::getContainer()->get(BookRepositoryInterface::class)->ofId($bookId);
 
-        static::assertNotNull($book);
+        static::assertNotNull($updatedBook);
         static::assertEquals(new BookName('newName'), $updatedBook->name());
         static::assertEquals(new BookDescription('newDescription'), $updatedBook->description());
         static::assertEquals(new Author('newAuthor'), $updatedBook->author());
@@ -225,13 +217,12 @@ final class BookCrudTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        /** @var BookRepositoryInterface $bookRepository */
-        $bookRepository = static::getContainer()->get(BookRepositoryInterface::class);
+        /** @var EventSourcedBookRepository $eventSourcedBookRepository */
+        $eventSourcedBookRepository = static::getContainer()->get(EventSourcedBookRepository::class);
 
-        $book = DummyBookFactory::createBook(name: 'name', description: 'description');
-        $bookRepository->save($book);
+        $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(id: $bookId)]);
 
-        $client->request('PATCH', sprintf('/api/books/%s', $book->id()), [
+        $client->request('PATCH', sprintf('/api/books/%s', $bookId), [
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
             ],
@@ -247,9 +238,9 @@ final class BookCrudTest extends ApiTestCase
             'name' => 'newName',
         ]);
 
-        $updatedBook = $bookRepository->ofId($book->id());
+        $updatedBook = static::getContainer()->get(BookRepositoryInterface::class)->ofId($bookId);
 
-        static::assertNotNull($book);
+        static::assertNotNull($updatedBook);
         static::assertEquals(new BookName('newName'), $updatedBook->name());
         static::assertEquals(new BookDescription('description'), $updatedBook->description());
     }
@@ -258,17 +249,16 @@ final class BookCrudTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        /** @var BookRepositoryInterface $bookRepository */
-        $bookRepository = static::getContainer()->get(BookRepositoryInterface::class);
+        /** @var EventSourcedBookRepository $eventSourcedBookRepository */
+        $eventSourcedBookRepository = static::getContainer()->get(EventSourcedBookRepository::class);
 
-        $book = DummyBookFactory::createBook();
-        $bookRepository->save($book);
+        $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(id: $bookId)]);
 
-        $response = $client->request('DELETE', sprintf('/api/books/%s', $book->id()));
+        $response = $client->request('DELETE', sprintf('/api/books/%s', $bookId));
 
         static::assertResponseIsSuccessful();
         static::assertEmpty($response->getContent());
 
-        static::assertNull($bookRepository->ofId($book->id()));
+        static::assertNull(static::getContainer()->get(BookRepositoryInterface::class)->ofId($bookId));
     }
 }

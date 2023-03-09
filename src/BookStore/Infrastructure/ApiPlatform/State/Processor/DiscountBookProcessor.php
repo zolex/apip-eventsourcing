@@ -6,9 +6,9 @@ namespace App\BookStore\Infrastructure\ApiPlatform\State\Processor;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\BookStore\Application\Command\DiscountBookCommand;
-use App\BookStore\Application\Query\FindBookQuery;
+use App\BookStore\Domain\Command\DiscountBookCommand;
 use App\BookStore\Domain\Model\Book;
+use App\BookStore\Domain\Query\FindBookQuery;
 use App\BookStore\Domain\ValueObject\BookId;
 use App\BookStore\Domain\ValueObject\Discount;
 use App\BookStore\Infrastructure\ApiPlatform\Payload\DiscountBookPayload;
@@ -17,7 +17,7 @@ use App\Shared\Application\Command\CommandBusInterface;
 use App\Shared\Application\Query\QueryBusInterface;
 use Webmozart\Assert\Assert;
 
-final class DiscountBookProcessor implements ProcessorInterface
+final readonly class DiscountBookProcessor implements ProcessorInterface
 {
     public function __construct(
         private CommandBusInterface $commandBus,
@@ -25,12 +25,7 @@ final class DiscountBookProcessor implements ProcessorInterface
     ) {
     }
 
-    /**
-     * @param mixed $data
-     *
-     * @return BookResource
-     */
-    public function process($data, Operation $operation, array $uriVariables = [], array $context = []): mixed
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): BookResource
     {
         Assert::isInstanceOf($data, DiscountBookPayload::class);
 
@@ -38,7 +33,7 @@ final class DiscountBookProcessor implements ProcessorInterface
         Assert::isInstanceOf($bookResource, BookResource::class);
 
         $command = new DiscountBookCommand(
-            new BookId($bookResource->id),
+            new BookId((string) $bookResource->id),
             new Discount($data->discountPercentage),
         );
 

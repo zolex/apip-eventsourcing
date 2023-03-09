@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace App\BookStore\Application\Query;
 
+use App\BookStore\Domain\Query\FindCheapestBooksQuery;
 use App\BookStore\Domain\Repository\BookRepositoryInterface;
 use App\Shared\Application\Query\QueryHandlerInterface;
+use Ecotone\Modelling\Attribute\QueryHandler;
 
-final class FindCheapestBooksQueryHandler implements QueryHandlerInterface
+final readonly class FindCheapestBooksQueryHandler implements QueryHandlerInterface
 {
     public function __construct(private BookRepositoryInterface $bookRepository)
     {
     }
 
-    public function __invoke(FindCheapestBooksQuery $query): BookRepositoryInterface
+    #[QueryHandler]
+    public function __invoke(FindCheapestBooksQuery $query): iterable
     {
-        return $this->bookRepository
-            ->withCheapestsFirst()
-            ->withPagination(1, $query->size);
+        return $this->bookRepository->findCheapest($query->size);
     }
 }

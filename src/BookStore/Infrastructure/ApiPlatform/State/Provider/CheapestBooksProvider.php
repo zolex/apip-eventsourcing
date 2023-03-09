@@ -6,15 +6,15 @@ namespace App\BookStore\Infrastructure\ApiPlatform\State\Provider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\BookStore\Application\Query\FindCheapestBooksQuery;
-use App\BookStore\Domain\Repository\BookRepositoryInterface;
+use App\BookStore\Domain\Model\Book;
+use App\BookStore\Domain\Query\FindCheapestBooksQuery;
 use App\BookStore\Infrastructure\ApiPlatform\Resource\BookResource;
 use App\Shared\Application\Query\QueryBusInterface;
 
 /**
  * @implements ProviderInterface<BookResource>
  */
-final class CheapestBooksProvider implements ProviderInterface
+final readonly class CheapestBooksProvider implements ProviderInterface
 {
     public function __construct(private QueryBusInterface $queryBus)
     {
@@ -23,14 +23,14 @@ final class CheapestBooksProvider implements ProviderInterface
     /**
      * @return list<BookResource>
      */
-    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): array
     {
-        /** @var BookRepositoryInterface $models */
-        $models = $this->queryBus->ask(new FindCheapestBooksQuery());
+        /** @var iterable<Book> $books */
+        $books = $this->queryBus->ask(new FindCheapestBooksQuery());
 
         $resources = [];
-        foreach ($models as $model) {
-            $resources[] = BookResource::fromModel($model);
+        foreach ($books as $book) {
+            $resources[] = BookResource::fromModel($book);
         }
 
         return $resources;

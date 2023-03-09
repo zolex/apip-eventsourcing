@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace App\BookStore\Domain\ValueObject;
 
-use Doctrine\ORM\Mapping as ORM;
 use Webmozart\Assert\Assert;
 
-#[ORM\Embeddable]
-final class Author
+final readonly class Author
 {
-    #[ORM\Column(name: 'author', length: 255)]
-    public readonly string $value;
+    public string $value;
 
     public function __construct(string $value)
     {

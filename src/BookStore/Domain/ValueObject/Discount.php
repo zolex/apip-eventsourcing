@@ -6,9 +6,9 @@ namespace App\BookStore\Domain\ValueObject;
 
 use Webmozart\Assert\Assert;
 
-final class Discount
+final readonly class Discount
 {
-    public readonly int $percentage;
+    public int $percentage;
 
     public function __construct(int $percentage)
     {

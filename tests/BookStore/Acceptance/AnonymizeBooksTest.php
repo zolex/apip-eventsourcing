@@ -7,6 +7,8 @@ namespace App\Tests\BookStore\Acceptance;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\BookStore\Domain\Repository\BookRepositoryInterface;
 use App\BookStore\Domain\ValueObject\Author;
+use App\BookStore\Domain\ValueObject\BookId;
+use App\BookStore\Infrastructure\Ecotone\Repository\EventSourcedBookRepository;
 use App\Tests\BookStore\DummyFactory\DummyBookFactory;
 
 final class AnonymizeBooksTest extends ApiTestCase
@@ -15,11 +17,14 @@ final class AnonymizeBooksTest extends ApiTestCase
     {
         $client = static::createClient();
 
-        /** @var BookRepositoryInterface $bookRepository */
-        $bookRepository = static::getContainer()->get(BookRepositoryInterface::class);
+        /** @var EventSourcedBookRepository $eventSourcedBookRepository */
+        $eventSourcedBookRepository = static::getContainer()->get(EventSourcedBookRepository::class);
 
         for ($i = 0; $i < 10; ++$i) {
-            $bookRepository->save(DummyBookFactory::createBook(author: sprintf('author_%d', $i)));
+            $eventSourcedBookRepository->save($bookId = new BookId(), 0, [DummyBookFactory::createBookWasCreatedEvent(
+                id: $bookId,
+                author: sprintf('author_%d', $i),
+            )]);
         }
 
         $response = $client->request('POST', '/api/books/anonymize', [
@@ -31,7 +36,7 @@ final class AnonymizeBooksTest extends ApiTestCase
         static::assertResponseStatusCodeSame(202);
         static::assertEmpty($response->getContent());
 
-        foreach ($bookRepository as $book) {
+        foreach (static::getContainer()->get(BookRepositoryInterface::class)->all() as $book) {
             self::assertEquals(new Author('anon.'), $book->author());
         }
     }

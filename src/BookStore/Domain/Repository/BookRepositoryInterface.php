@@ -4,23 +4,30 @@ declare(strict_types=1);
 
 namespace App\BookStore\Domain\Repository;
 
+use App\BookStore\Domain\Event\BookEvent;
 use App\BookStore\Domain\Model\Book;
 use App\BookStore\Domain\ValueObject\Author;
 use App\BookStore\Domain\ValueObject\BookId;
-use App\Shared\Domain\Repository\RepositoryInterface;
+use App\Shared\Domain\Repository\PaginatorInterface;
 
-/**
- * @extends RepositoryInterface<Book>
- */
-interface BookRepositoryInterface extends RepositoryInterface
+interface BookRepositoryInterface
 {
-    public function save(Book $book): void;
-
-    public function remove(Book $book): void;
-
     public function ofId(BookId $id): ?Book;
 
-    public function withAuthor(Author $author): static;
+    /** @return iterable<BookEvent> */
+    public function findEvents(BookId $id): iterable;
 
-    public function withCheapestsFirst(): static;
+    /** @return iterable<Book> */
+    public function all(): iterable;
+
+    /**
+     * @return PaginatorInterface<Book>
+     */
+    public function paginator(int $page, int $itemsPerPage): PaginatorInterface;
+
+    /** @return iterable<Book> */
+    public function findByAuthor(Author $author): iterable;
+
+    /** @return iterable<Book> */
+    public function findCheapest(int $size): iterable;
 }
