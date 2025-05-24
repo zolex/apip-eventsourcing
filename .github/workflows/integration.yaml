@@ -1,8 +1,12 @@
-name: CI
+name: Integration
 
 on:
-    pull_request: ~
-    push: ~
+    pull_request:
+        branches:
+            - master
+    push:
+        branches:
+            - master
 
 jobs:
     php-cs-fixer:
