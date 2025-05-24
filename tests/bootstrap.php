@@ -15,3 +15,5 @@ if (file_exists(dirname(__DIR__).'/config/bootstrap.php')) {
 if ($_SERVER['APP_DEBUG']) {
     umask(0000);
 }
+
+DG\BypassFinals::enable(bypassReadOnly: false);

@@ -19,10 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
 )]
 #[ORM\Entity]
-/**
- * @psalm-suppress
- */
-class Subscription
+final class Subscription
 {
     public function __construct(
         #[ApiProperty(readable: false, writable: false)]
