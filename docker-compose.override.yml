@@ -1,21 +1,16 @@
-version: "3.4"
-
 services:
   php:
+    build:
+      target: dev
     volumes:
       # The "cached" option has no effect on Linux but improves performance on Mac
-      - ./:/srv/app:rw,cached
+      - ./:/app:rw,cached
       - ./docker/php/conf.d/symfony.dev.ini:/usr/local/etc/php/conf.d/symfony.ini
       # If you develop on Mac you can remove the var/ directory from the bind-mount
       # for better performance by enabling the next line 
-      - /srv/app/var
+      - /app/var
     environment:
       APP_ENV: dev
-
-  caddy:
-    volumes:
-      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./public:/srv/app/public:ro
 
 ###> symfony/mercure-bundle ###
 ###< symfony/mercure-bundle ###
@@ -25,3 +20,13 @@ services:
     ports:
       - "5433:5432"
 ###< doctrine/doctrine-bundle ###
+
+  pgadmin4:
+    image: elestio/pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${ADMIN_EMAIL:-zlx@gmx.de}
+      PGADMIN_DEFAULT_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+      PGADMIN_LISTEN_PORT: 8080
+    ports:
+      - "8080:8080"

@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
 )]
 #[ORM\Entity]
-class Subscription
+final class Subscription
 {
     public function __construct(
         #[ApiProperty(readable: false, writable: false)]

@@ -7,44 +7,48 @@
         "name": "Mathias Arlaud",
         "email": "mathias.arlaud@gmail.com"
       },
-      {
-        "name": "Alan Poulain",
-        "email": "contact@alanpoulain.eu"
-      }
+        {
+            "name": "Alan Poulain",
+            "email": "contact@alanpoulain.eu"
+        },
+        {
+            "name": "Andreas Linden",
+            "email": "zlx@gmx.de"
+        }
     ],
     "require": {
-        "php": ">=8.2",
+        "php": ">=8.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "api-platform/core": "^3.1",
+        "api-platform/core": "^4.1",
         "doctrine/annotations": "^2.0",
         "doctrine/doctrine-bundle": "^2.5",
-        "doctrine/orm": "^2.11",
+        "doctrine/orm": "^3.3",
         "ecotone/jms-converter": "^1.74",
         "ecotone/pdo-event-sourcing": "^1.74",
         "ecotone/symfony-bundle": "^1.74",
-        "nelmio/cors-bundle": "^2.2",
+        "nelmio/cors-bundle": "^2.3",
         "phpdocumentor/reflection-docblock": "^5.3",
-        "phpstan/phpdoc-parser": "^1.2",
-        "symfony/asset": "6.2.*",
-        "symfony/console": "6.2.*",
-        "symfony/dotenv": "6.2.*",
-        "symfony/expression-language": "6.2.*",
+        "phpstan/phpdoc-parser": "^1.16",
+        "symfony/asset": "^7.2",
+        "symfony/console": "^7.2",
+        "symfony/dotenv": "^7.2",
+        "symfony/expression-language": "^7.2",
         "symfony/flex": "^2",
-        "symfony/framework-bundle": "6.2.*",
-        "symfony/messenger": "6.2.*",
+        "symfony/framework-bundle": "^7.2",
+        "symfony/messenger": "^7.2",
         "symfony/monolog-bundle": "^3.0",
-        "symfony/property-access": "6.2.*",
-        "symfony/property-info": "6.2.*",
-        "symfony/proxy-manager-bridge": "6.2.*",
-        "symfony/runtime": "6.2.*",
-        "symfony/security-bundle": "6.2.*",
-        "symfony/serializer": "6.2.*",
-        "symfony/twig-bundle": "6.2.*",
-        "symfony/uid": "6.2.*",
-        "symfony/validator": "6.2.*",
-        "symfony/yaml": "6.2.*",
-        "webmozart/assert": "^1.10"
+        "symfony/property-access": "^7.2",
+        "symfony/property-info": "^7.2",
+        "symfony/proxy-manager-bridge": "^6.4",
+        "symfony/runtime": "^7.2",
+        "symfony/security-bundle": "^7.2",
+        "symfony/serializer": "^7.2",
+        "symfony/twig-bundle": "^7.2",
+        "symfony/uid": "^7.2",
+        "symfony/validator": "^7.2",
+        "symfony/yaml": "^7.2",
+        "webmozart/assert": "^1.2"
     },
     "config": {
         "allow-plugins": {
@@ -74,7 +78,10 @@
         "symfony/polyfill-php72": "*",
         "symfony/polyfill-php73": "*",
         "symfony/polyfill-php74": "*",
-        "symfony/polyfill-php80": "*"
+        "symfony/polyfill-php80": "*",
+        "symfony/polyfill-php81": "*",
+        "symfony/polyfill-php82": "*",
+        "symfony/polyfill-php83": "*"
     },
     "scripts": {
         "auto-scripts": {
@@ -94,7 +101,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "6.2.*",
+            "require": "^7.2",
             "docker": true,
             "endpoint": [
                 "https://raw.githubusercontent.com/schranz-php-recipes/symfony-recipes-php/flex/main/index.json",
@@ -104,17 +111,18 @@
         }
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.15",
-        "justinrainbow/json-schema": "^5.2",
+        "composer/composer": "^2.8",
+        "friendsofphp/php-cs-fixer": "^v3.75",
+        "justinrainbow/json-schema": "^6.4",
         "phpunit/phpunit": "^9.5",
         "qossmic/deptrac-shim": "^1.0",
-        "symfony/browser-kit": "6.2.*",
-        "symfony/css-selector": "6.2.*",
-        "symfony/debug-bundle": "6.2.*",
-        "symfony/http-client": "6.2.*",
-        "symfony/phpunit-bridge": "6.2.*",
-        "symfony/stopwatch": "6.2.*",
-        "symfony/web-profiler-bundle": "6.2.*",
-        "vimeo/psalm": "^5.8"
+        "symfony/browser-kit": "^7.2",
+        "symfony/css-selector": "^7.2",
+        "symfony/debug-bundle": "^7.2",
+        "symfony/http-client": "^7.2",
+        "symfony/phpunit-bridge": "^7.2",
+        "symfony/stopwatch": "^7.2",
+        "symfony/web-profiler-bundle": "^7.2",
+        "vimeo/psalm": "^6.11"
     }
 }

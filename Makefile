@@ -47,6 +47,9 @@ install:
 	@$(MAKE) vendor -s
 	@$(MAKE) db-reset -s
 
+build-prod:
+	@$(DC) -f docker-compose.yml -f docker-compose.prod.yml build --no-cache
+
 ## Install composer dependencies
 vendor:
 	@$(COMPOSER) install --optimize-autoloader
@@ -54,6 +57,10 @@ vendor:
 ## Start the project
 start:
 	@$(DC) up -d --remove-orphans --no-recreate
+
+start-test:
+	@$(DC) -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.test.yml up -d --remove-orphans --no-recreate
+
 
 ## Stop the project
 stop:
@@ -80,7 +87,7 @@ db-projections:
 	@$(EXEC) bin/console ecotone:es:initialize-projection booksByAuthor
 
 ## Reset database
-db-reset: db-create db-update
+db-reset: db-create db-update db-projections
 
 .PHONY: db-create db-update db-reset
 
@@ -93,7 +100,7 @@ php-cs-fixer:
 
 ## Run psalm static analysis
 psalm:
-	@$(EXEC) vendor/bin/psalm --show-info=true
+	@$(EXEC) vendor/bin/psalm --show-info=true --report=psalm-report.sarif
 
 ## Run code depedencies static analysis
 deptrac:

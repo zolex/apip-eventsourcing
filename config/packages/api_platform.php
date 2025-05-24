@@ -27,4 +27,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             InvalidArgumentException::class => 422,
         ],
     ]);
+
+    if ('test' === $containerConfigurator->env()) {
+        $containerConfigurator->extension('api_platform', [
+            'formats' => [
+                'jsonld' => [
+                    'mime_types' => ['application/ld+json'],
+                ],
+                'json' => [
+                    'mime_types' => ['application/json'],
+                ],
+            ],
+        ]);
+    }
 };

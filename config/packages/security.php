@@ -11,9 +11,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             PasswordAuthenticatedUserInterface::class => 'auto',
         ],
         'providers' => [
-                'users_in_memory' => [
-                    'memory' => null,
-                ],
+            'users_in_memory' => [
+                'memory' => null,
+            ],
         ],
         'firewalls' => [
             'dev' => [
@@ -25,7 +25,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'provider' => 'users_in_memory',
             ],
         ],
-        'access_control' => null,
     ]);
     if ('test' === $containerConfigurator->env()) {
         $containerConfigurator->extension('security', [

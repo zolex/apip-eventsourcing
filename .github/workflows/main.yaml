@@ -15,7 +15,7 @@ jobs:
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: '8.2'
+                  php-version: '8.4'
                   tools: php-cs-fixer, cs2pr
 
             - name: Run PHP-CS-Fixer
@@ -31,7 +31,7 @@ jobs:
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: '8.2'
+                  php-version: '8.4'
 
             - name: Get composer cache directory
               id: composercache
@@ -60,7 +60,7 @@ jobs:
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: '8.2'
+                  php-version: '8.4'
 
             - name: Get composer cache directory
               id: composercache
@@ -89,7 +89,7 @@ jobs:
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: '8.2'
+                  php-version: '8.4'
 
             - name: Get composer cache directory
               id: composercache
@@ -133,7 +133,7 @@ jobs:
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: '8.2'
+                  php-version: '8.4'
 
             - name: Get composer cache directory
               id: composercache
@@ -152,4 +152,5 @@ jobs:
             - name: Run tests
               run: bin/phpunit
               env:
+                  APP_ENV: test
                   DATABASE_URL: 'postgresql://symfony:!ChangeMe!@localhost:5432/app_test?serverVersion=15&charset=utf8'

@@ -18,21 +18,21 @@ use App\BookStore\Domain\ValueObject\BookDescription;
 use App\BookStore\Domain\ValueObject\BookId;
 use App\BookStore\Domain\ValueObject\BookName;
 use App\BookStore\Domain\ValueObject\Price;
-use Ecotone\Modelling\Attribute\AggregateIdentifier;
 use Ecotone\Modelling\Attribute\CommandHandler;
 use Ecotone\Modelling\Attribute\EventSourcingAggregate;
 use Ecotone\Modelling\Attribute\EventSourcingHandler;
+use Ecotone\Modelling\Attribute\Identifier;
 use Ecotone\Modelling\WithAggregateVersioning;
 
 /**
  * @psalm-suppress MissingConstructor
  */
 #[EventSourcingAggregate]
-class Book
+final class Book
 {
     use WithAggregateVersioning;
 
-    #[AggregateIdentifier]
+    #[Identifier]
     private BookId $id;
     private BookName $name;
     private BookDescription $description;

@@ -1,4 +1,4 @@
-# Event Sourcing with API Platform 3 and Ecotone
+# Event Sourcing with API Platform 4 and Ecotone
 
 This example project is based on the great work done in [Domain Driven Design and API Platform 3](https://github.com/mtarld/apip-ddd).
 
@@ -7,7 +7,7 @@ The architecture follows:
 - CQRS
 - Event Sourcing
 
-It uses [API Platform](https://api-platform.com/) for exposing the API and [Ecotone](https://ecotone.tech/) for managing Event Sourcing.
+It runs on [frankenphp](https://frankenphp.dev/), uses [Symfony 7](https://symfony.com/), [API Platform 4](https://api-platform.com/) for exposing the API and [Ecotone](https://ecotone.tech/) for managing Event Sourcing.
 
 ## Getting Started
 If you want to try to use and tweak that example, you can follow these steps:
@@ -29,3 +29,5 @@ To ensure that the CI will succeed whenever contributing, make sure that either 
 [Alan Poulain](https://github.com/alanpoulain)
 
 [Mathias Arlaud](https://github.com/mtarld) with the help of [Robin Chalas](https://github.com/chalasr)
+
+[Andreas Linden](https://github.com/zolex)

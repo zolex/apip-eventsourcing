@@ -29,7 +29,7 @@ final readonly class DiscountBookProcessor implements ProcessorInterface
     {
         Assert::isInstanceOf($data, DiscountBookPayload::class);
 
-        $bookResource = $context['previous_data'];
+        $bookResource = $context['previous_data'] ?? null;
         Assert::isInstanceOf($bookResource, BookResource::class);
 
         $command = new DiscountBookCommand(

@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\OpenApi\Model\Operation;
 use App\BookStore\Domain\Command\AnonymizeBooksCommand;
 use App\BookStore\Domain\Event\BookEvent;
 use App\BookStore\Domain\Model\Book;
@@ -25,7 +26,6 @@ use App\BookStore\Infrastructure\ApiPlatform\State\Processor\UpdateBookProcessor
 use App\BookStore\Infrastructure\ApiPlatform\State\Provider\BookCollectionProvider;
 use App\BookStore\Infrastructure\ApiPlatform\State\Provider\BookEventsProvider;
 use App\BookStore\Infrastructure\ApiPlatform\State\Provider\BookItemProvider;
-use App\BookStore\Infrastructure\ApiPlatform\State\Provider\CheapestBooksProvider;
 use Symfony\Component\Uid\AbstractUid;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -36,13 +36,11 @@ use Symfony\Component\Validator\Constraints as Assert;
         // queries
         new GetCollection(
             '/books/cheapest.{_format}',
-            openapiContext: ['summary' => 'Find cheapest Book resources.'],
-            paginationEnabled: false,
-            provider: CheapestBooksProvider::class,
+            openapi: new Operation(summary: 'Create a rabbit picture'),
         ),
         new GetCollection(
             '/books/{id}/events.{_format}',
-            openapiContext: ['summary' => 'Get events for this Book.'],
+            openapi: new Operation(summary: 'Get events for this Book.'),
             output: BookEvent::class,
             provider: BookEventsProvider::class,
         ),
@@ -51,14 +49,14 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             '/books/anonymize.{_format}',
             status: 202,
-            openapiContext: ['summary' => 'Anonymize author of every Book resources.'],
+            openapi: new Operation(summary: 'Anonymize author of every Book resources.'),
             input: AnonymizeBooksCommand::class,
             output: false,
             processor: AnonymizeBooksProcessor::class,
         ),
         new Post(
             '/books/{id}/discount.{_format}',
-            openapiContext: ['summary' => 'Apply a discount percentage on a Book resource.'],
+            openapi: new Operation(summary: 'Apply a discount percentage on a Book resource.'),
             input: DiscountBookPayload::class,
             provider: BookItemProvider::class,
             processor: DiscountBookProcessor::class,
@@ -94,7 +92,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class BookResource
 {
     public function __construct(
-        #[ApiProperty(identifier: true, readable: false, writable: false)]
+        #[ApiProperty(readable: false, writable: false, identifier: true)]
         public ?AbstractUid $id = null,
 
         #[Assert\NotNull(groups: ['create'])]

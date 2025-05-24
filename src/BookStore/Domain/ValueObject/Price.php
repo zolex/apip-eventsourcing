@@ -19,7 +19,7 @@ final readonly class Price
 
     public function applyDiscount(Discount $discount): static
     {
-        $amount = (int) ($this->amount - ($this->amount * $discount->percentage / 100));
+        $amount = (int) ((float)$this->amount - ((float)$this->amount * (float)$discount->percentage / 100.0));
 
         return new static($amount);
     }
