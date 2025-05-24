@@ -25,5 +25,10 @@
                 <directory name="src" />
             </errorLevel>
         </MissingOverrideAttribute>
+        <ClassMustBeFinal>
+            <errorLevel type="suppress">
+                <directory name="src" />
+            </errorLevel>
+        </ClassMustBeFinal>
     </issueHandlers>
 </psalm>

@@ -112,7 +112,6 @@
     },
     "require-dev": {
         "composer/composer": "^2.8",
-        "dg/bypass-finals": "*",
         "friendsofphp/php-cs-fixer": "^v3.75",
         "justinrainbow/json-schema": "^6.4",
         "phpunit/phpunit": "^9.5",
